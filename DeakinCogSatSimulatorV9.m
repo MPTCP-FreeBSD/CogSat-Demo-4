@@ -1,35 +1,46 @@
 function DeakinCogSatSimulatorV9
     clc
-    fig = uifigure('Name','Deakin CogSat Demo','Position',[100 100 900 600]);
+    fig = uifigure('Name','Deakin CogSat Demo','Position',[100 100 1200 900]); % [left bottom width height]
 
     % Title
     uilabel(fig, 'Text','CogSat Software Demo', ...
         'FontSize', 20, 'FontWeight', 'bold', ...
         'HorizontalAlignment','center', ...
-        'Position',[150 560 600 30]);
+        'Position',[300 540 600 650]);
 
     % SmartSat Logo
-    uiimage(fig, 'Position', [800 560 100 50], 'ImageSource', 'smartSat.png');
+    uiimage(fig, 'Position', [800 560 100 650], 'ImageSource', 'smartSat.png');
 
     % --- Combined Boxplot Panel ---
-    boxplotPanel = uipanel(fig, 'Title', 'Capacity Distribution', 'Position', [590 340 250 200]);
-    axCombined = uiaxes(boxplotPanel, 'Position', [5 1 240 170]);
+    boxplotPanel = uipanel(fig, 'Title', 'SINR per user', 'FontSize', 16,'Position', [800 600 350 250]);
+    axCombined = uiaxes(boxplotPanel, 'Position', [5 1 340 230]);
     axCombined.YLabel.String = '';
     axCombined.XTickLabelRotation = 0;
-    axCombined.FontSize = 10;
+    axCombined.FontSize = 12;
     grid(axCombined, 'on');
 
     % Scenario Input Controls
-    uilabel(fig, 'Text','GEO satellites:', 'FontSize', 12, 'Position', [40 520 180 25]);
-    uidropdown(fig, 'Items', {'1','2','3'}, 'Position', [160 520 60 25], 'Value', '1');
-    uilabel(fig, 'Text','LEO satellites:', 'FontSize', 12, 'Position', [40 490 180 25]);
-    uidropdown(fig, 'Items', {'1','2','3','4','5','6','7','8','9','588'}, 'Position', [160 490 60 25], 'Value', '588');
-    uilabel(fig, 'Text','GEO users:', 'FontSize', 12, 'Position', [40 460 180 25]);
-    uidropdown(fig, 'Items', {'1','2','3','4','5','6','7','8','9','10'}, 'Position', [160 460 60 25], 'Value', '10');
-    uilabel(fig, 'Text','LEO users:', 'FontSize', 12, 'Position', [40 430 180 25]);
-    uidropdown(fig, 'Items', {'1','2','3','4','5','6','7','8','9','10'}, 'Position', [160 430 60 25], 'Value', '10');
-    uilabel(fig, 'Text','LEO orbits:', 'FontSize', 12, 'Position', [40 400 180 25]);
-    uidropdown(fig, 'Items', {'1','2','3'}, 'Position', [160 400 60 25], 'Value', '1');
+    uilabel(fig, 'Text','GEO satellites:', 'FontSize', 16, 'Position', [40 820 180 25]);%[left bottom width height]
+    uidropdown(fig, 'Items', {'1','2','3'}, 'FontSize', 16,'Position', [160 820 80 25], 'Value', '1');
+    uilabel(fig, 'Text','LEO satellites:', 'FontSize', 16, 'Position', [40 790 180 25]);
+    uidropdown(fig, 'Items', {'1','2','3','4','5','6','7','8','9','588'},'FontSize', 16, 'Position', [160 790 80 25], 'Value', '588');
+    uilabel(fig, 'Text','GEO users:', 'FontSize', 16, 'Position', [40 760 180 25]);
+    uidropdown(fig, 'Items', {'1','2','3','4','5','6','7','8','9','10'},'FontSize', 16, 'Position', [160 760 80 25], 'Value', '10');
+    uilabel(fig, 'Text','LEO users:', 'FontSize', 16, 'Position', [40 730 180 25]);
+    uidropdown(fig, 'Items', {'1','2','3','4','5','6','7','8','9','10'},'FontSize', 16, 'Position', [160 730 80 25], 'Value', '10');
+    uilabel(fig, 'Text','LEO plans:', 'FontSize', 16, 'Position', [40 700 180 25]);
+    uidropdown(fig, 'Items', {'12','15','18'},'FontSize', 16, 'Position', [160 700 80 25], 'Value', '12');
+
+    uilabel(fig, 'Text','Antenna beamwidth:', 'FontSize', 16, 'Position', [300 820 180 25]);
+    uidropdown(fig, 'Items', {'2°','5°','8°','10°','15°'}, 'FontSize', 16,'Position', [470 820 80 25], 'Value', '5°');
+    uilabel(fig, 'Text','Number of channels:', 'FontSize', 16, 'Position', [300 790 180 25]);
+    uidropdown(fig, 'Items', {'10','15','20','25','30'},'FontSize', 16, 'Position', [470 790 80 25], 'Value', '15');
+    uilabel(fig, 'Text','GEO users:', 'FontSize', 16, 'Position', [300 760 180 25]);
+    uidropdown(fig, 'Items', {'1','2','3','4','5','6','7','8','9','10'},'FontSize', 16, 'Position', [470 760 80 25], 'Value', '10');
+    uilabel(fig, 'Text','LEO users:', 'FontSize', 16, 'Position', [300 730 180 25]);
+    uidropdown(fig, 'Items', {'1','2','3','4','5','6','7','8','9','10'},'FontSize', 16, 'Position', [470 730 80 25], 'Value', '10');
+    uilabel(fig, 'Text','LEO plans:', 'FontSize', 16, 'Position', [300 700 180 25]);
+    uidropdown(fig, 'Items', {'1','2','3'},'FontSize', 16, 'Position', [470 700 80 25], 'Value', '1');
 
     % Scenario Image
     scenarioImage = uiimage(fig, 'Position', [250 365 300 230], 'ImageSource', 'images/s1_on.png');
@@ -153,4 +164,4 @@ function DeakinCogSatSimulatorV9
             disp("Error loading Satellite Scenario: " + ME.message);
         end
     end
-end
+end 
