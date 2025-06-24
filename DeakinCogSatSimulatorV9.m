@@ -66,31 +66,31 @@ function DeakinCogSatSimulatorV9
 
     % KPI Panels
     panelWidth = 520; panelHeight = 250; panelBottom = 350; gap = 40;
-    kpi1 = uipanel(fig, 'Title','Primary User Throughput', 'FontSize', 18,'Position',[gap*1.2 panelBottom panelWidth panelHeight]);
+    kpi1 = uipanel(fig, 'Title','Primary User Mean Throughput', 'FontSize', 18,'Position',[gap*1.2 panelBottom panelWidth panelHeight]);
     kpi1ax = uiaxes(kpi1, 'Position', [5 1 510 240]);
-    setupKPIAxes(kpi1ax, [0 2000], 'Throughput [b/s]', 'Time [s]',[]);
+    setupKPIAxes(kpi1ax, [0 2000], 'Throughput [Mbps]', 'Time [s]',[]);
 
-    kpi2 = uipanel(fig, 'Title','Secondary User Throughput', 'FontSize', 18, 'Position',[gap*2.4 + panelWidth panelBottom panelWidth panelHeight]);
+    kpi2 = uipanel(fig, 'Title','Secondary User Mean Throughput', 'FontSize', 18, 'Position',[gap*2.4 + panelWidth panelBottom panelWidth panelHeight]);
     kpi2ax = uiaxes(kpi2, 'Position', [5 1 510 240]);
-    setupKPIAxes(kpi2ax, [0 2000], 'Throughput [b/s]','Time [s]',[]);
+    setupKPIAxes(kpi2ax, [0 2000], 'Throughput [Mbps]','Time [s]',[]);
 
 
     % KPI Panels
-    panelWidth = 350; panelHeight = 250; panelBottom = 80; gap = 40;
+    panelWidth = 520; panelHeight = 250; panelBottom = 80; gap = 40;
     kpi3 = uipanel(fig, 'Title','Spectral Efficiency', 'FontSize', 18,'Position',[gap panelBottom panelWidth panelHeight]);
-    kpi3ax = uiaxes(kpi3, 'Position', [5 1 340 240]);
-    setupKPIAxes(kpi3ax, [0 2000], 'Spectral efficiency [b/s/Hz]','Time [s]',[]);
+    kpi3ax = uiaxes(kpi3, 'Position', [5 1 510 240]);
+    setupKPIAxes(kpi3ax, [0 100], 'Spectral efficiency [%]','Time [s]',[]);
 
-    kpi4 = uipanel(fig, 'Title','Mean SINR for LEO users', 'FontSize', 18, 'Position',[gap*2 + panelWidth panelBottom panelWidth panelHeight]);
-    kpi4ax = uiaxes(kpi4, 'Position', [5 1 340 240]);
+    kpi4 = uipanel(fig, 'Title','Mean SINR for LEO Users', 'FontSize', 18, 'Position',[gap*2 + panelWidth panelBottom panelWidth panelHeight]);
+    kpi4ax = uiaxes(kpi4, 'Position', [5 1 510 240]);
     setupKPIAxes(kpi4ax, [0 40], 'SINR [dB]','Time [s]',[]);
 
-    kpi5 = uipanel(fig, 'Title','Beamwidth constraints on user SINR','FontSize', 18, 'Position',[gap*3 + panelWidth*2 panelBottom panelWidth panelHeight]);
-    % kpi5ax = uiaxes(kpi5, 'Position', [5 1 340 240]);
-    % setupKPIAxes(kpi5ax, [-20 30], 'SINR [dB]','User index]',[1 20]);
-    uiimage(kpi5, ...
-    'ImageSource', 'Figure11.png', ...
-    'Position', [10 10 panelWidth-20 panelHeight-20]);  % Adjust for padding
+    % kpi5 = uipanel(fig, 'Title','Beamwidth constraints on user SINR','FontSize', 18, 'Position',[gap*3 + panelWidth*2 panelBottom panelWidth panelHeight]);
+    % % kpi5ax = uiaxes(kpi5, 'Position', [5 1 340 240]);
+    % % setupKPIAxes(kpi5ax, [-20 30], 'SINR [dB]','User index]',[1 20]);
+    % uiimage(kpi5, ...
+    % 'ImageSource', 'Figure11.png', ...
+    % 'Position', [10 10 panelWidth-20 panelHeight-20]);  % Adjust for padding
 
     %% === Nested Functions ===
     co = colororder;
@@ -118,13 +118,13 @@ function DeakinCogSatSimulatorV9
                 % CogSat ON values (solid lines)
                 y1_on = str2double(T.GEO_Thrpt_a2c(i));
                 y2_on = str2double(T.LEO_Thrpt_a2c(i));
-                y3_on = (y1_on + y2_on) / 2;
+                y3_on = (y1_on + y2_on)*10 / 500;
                 y4_on = str2double(T.LEO_SINR_a2c(i));
         
                 % Baseline OFF values (dashed lines)
                 y1_off = str2double(T.GEO_Thrpt_baseline(i));
                 y2_off = str2double(T.LEO_Thrpt_baseline(i));
-                y3_off = (y1_off + y2_off) / 2;
+                y3_off = (y1_off + y2_off)*10 / 500;
                 y4_off = str2double(T.LEO_SINR_baseline(i));
         
                 % Add CogSat ON points
@@ -157,7 +157,7 @@ function DeakinCogSatSimulatorV9
                 t = T.Time(i);
                 y1 = str2double(T.GEO_Thrpt_baseline(i));
                 y2 = str2double(T.LEO_Thrpt_baseline(i));
-                y3 = (y1 + y2) / 2;
+                y3 = (y1 + y2)*10 / 500;
                 y4 = str2double(T.LEO_SINR_baseline(i));
                 if ~isnan(y1), addpoints(off_kpi1, t, y1); end
                 if ~isnan(y2), addpoints(off_kpi2, t, y2); end
