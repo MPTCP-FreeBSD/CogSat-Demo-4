@@ -1,9 +1,11 @@
-function DeakinCogSatSimulatorV9
+function DeakinCogSatSimulatorV11
     clc
     fig = uifigure('Name','Deakin CogSat Demo','Position',[100 100 1200 900]); % [left bottom width height]
 
+    drawingActive = false;  % <==== GLOBAL SHARED VARIABLE
+
     % Title
-    uilabel(fig, 'Text','CogSat Software Demo', ...
+    uilabel(fig, 'Text','WP 2 CogSat Software Demo', ...
         'FontSize', 24, 'FontWeight', 'bold', ...
         'HorizontalAlignment','center', ...
         'Position',[300 550 600 650]);
@@ -17,54 +19,63 @@ function DeakinCogSatSimulatorV9
     uilabel(fig, 'Text','GEO satellites:', 'FontSize', 18, 'Position', [40 810 180 25]);%[left bottom width height]
     uidropdown(fig, 'Items', {'1','2','3'}, 'FontSize', 16,'Position', [170 810 100 25], 'Value', '1');
     uilabel(fig, 'Text','LEO satellites:', 'FontSize', 18, 'Position', [40 770 180 25]);
-    uidropdown(fig, 'Items', {'1','2','3','4','5','6','7','8','9','10','588'},'FontSize', 16, 'Position', [170 770 100 25], 'Value', '588');
+    LEONumbers=uidropdown(fig, 'Items', {'1','2','3','4','5','6','7','8','9','10','588'},'FontSize', 16, 'Position', [170 770 100 25], 'Value', '588');
     uilabel(fig, 'Text','GEO users:', 'FontSize', 18, 'Position', [40 730 180 25]);
-    uidropdown(fig, 'Items', {'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15'},'FontSize', 16, 'Position', [170 730 100 25], 'Value', '10');
+    GEOUsers=uidropdown(fig, 'Items', {'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15'},'FontSize', 16, 'Position', [170 730 100 25], 'Value', '10');
     uilabel(fig, 'Text','LEO users:', 'FontSize', 18, 'Position', [40 690 180 25]);
-    uidropdown(fig, 'Items', {'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15'},'FontSize', 16, 'Position', [170 690 100 25], 'Value', '10');
+    LEOUsers=uidropdown(fig, 'Items', {'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15'},'FontSize', 16, 'Position', [170 690 100 25], 'Value', '10');
     % uilabel(fig, 'Text','LEO plans:', 'FontSize', 18, 'Position', [40 650 180 25]);
     % uidropdown(fig, 'Items', {'12','15','18'},'FontSize', 16, 'Position', [170 650 100 25], 'Value', '12');
 
     uilabel(fig, 'Text','Number of channels:', 'FontSize', 18, 'Position', [300 810 180 25]);
-    uidropdown(fig, 'Items', {'10','15','20','25','30'}, 'FontSize', 16,'Position', [470 810 100 25], 'Value', '15');
+    Channelnum=uidropdown(fig, 'Items', {'10','15','20','25','30'}, 'FontSize', 16,'Position', [470 810 100 25], 'Value', '15');
     uilabel(fig, 'Text','Gain pattern:', 'FontSize', 18, 'Position', [300 770 180 25]);
     uidropdown(fig, 'Items', {'Fixed','1D','2D'},'FontSize', 16, 'Position', [470 770 100 25], 'Value', '2D');
     uilabel(fig, 'Text','Antenna beamwidth:', 'FontSize', 18, 'Position', [300 730 180 25]);
-    uidropdown(fig, 'Items', {'0°','2°','5°','8°','10°','15°'},'FontSize', 16, 'Position', [470 730 100 25], 'Value', '10°');
+    uidropdown(fig, 'Items', {'0°','2°','5°','8°','10°','15°'},'FontSize', 16, 'Position', [470 730 100 25], 'Value', '8°');
     uilabel(fig, 'Text','Fading:', 'FontSize', 18, 'Position', [300 690 180 25]);
     uidropdown(fig, 'Items', {'None','Rician','Rayleigh'},'FontSize', 16, 'Position', [470 690 100 25], 'Value', 'Rician');
     % uilabel(fig, 'Text','LEO plans:', 'FontSize', 18, 'Position', [300 650 180 25]);
     % uidropdown(fig, 'Items', {'1','2','3'},'FontSize', 16, 'Position', [470 650 80 25], 'Value', '1');
 
-    % Scenario Image
-    uiimage(fig, 'Position', [700 580 450 300], 'ImageSource', 'images/scenarioImage.png');
+    % Create Video
+    vidAx = uiaxes(fig, 'Position', [650 580 450 300]);
+    axis(vidAx, 'off');
+    v = VideoReader('Satellite2.mp4');
+    vidTimer = timer( ...
+    'ExecutionMode', 'fixedRate', ...
+    'Period', 1/v.FrameRate, ...
+    'TimerFcn', @updateFrame);
+    start(vidTimer);
     
     % Satellite Visualisation
-    uibutton(fig, 'Text','Satellite Visualisation','FontSize', 18, 'Position',[370 640 200 30], ...
+    uibutton(fig, 'Text','Satellite Visualisation','FontSize', 18, 'Position',[235 605 200 30], ...
         'ButtonPushedFcn', @(src, event) satView());
 
-    % CogSat Toggles
-    % uilabel(fig, 'Text','CogSat', 'FontSize', 18, 'FontWeight', 'bold', 'Position',[40 640 75 30]);
-    % toggleBtn2 = uibutton(fig, 'state', 'Text','On', 'FontSize', 16, 'FontWeight','bold', ...
-    %     'FontColor','#65aa3a', 'Position',[140 640 50 30], ...
-    %     'ValueChangedFcn', @(btn, event) toggleCogSatOn());
-    % toggleBtn3 = uibutton(fig, 'state', 'Text','Off', 'FontSize', 16, 'FontWeight','bold', ...
-    %     'FontColor','red', 'Position',[200 640 50 30], 'Value', true, ...
-    %     'ValueChangedFcn', @(btn, event) toggleCogSatOff());
-    uilabel(fig, 'Text','CogSat', 'FontSize', 18, 'FontWeight', 'bold', 'Position',[40 640 75 30]);
-    toggleBtn = uibutton(fig, 'state', 'Text','Off','FontSize', 16,  'FontWeight','bold', ...
-        'FontColor','red', 'Position',[140 640 80 30], 'Value', true, ...
-        'ValueChangedFcn', @(btn, event) toggleCogSat());
-
+    % Control buttons
+    uilabel(fig, 'Text','Plots:', 'FontSize', 18, 'FontWeight', 'bold', 'Position',[40 640 75 30]);
+    baselineBtn = uibutton(fig, 'Text','Baseline', 'FontSize', 16, 'FontWeight','bold', ...
+        'FontColor','black', 'Position',[140 640 90 30], ...
+        'ButtonPushedFcn', @(btn, event) runBaseline());
+    cogsatBtn = uibutton(fig, 'Text','CogSat', 'FontSize', 16, 'FontWeight','bold', ...
+        'FontColor','#65aa3a', 'Position',[240 640 90 30], ...
+        'ButtonPushedFcn', @(btn, event) runCogSat());
+    combinedBtn = uibutton(fig, 'Text','Combined', 'FontSize', 16, 'FontWeight','bold', ...
+        'FontColor','blue', 'Position',[340 640 90 30], ...
+        'ButtonPushedFcn', @(btn, event) runCombined());
+    stopBtn = uibutton(fig, 'Text','Stop','FontSize', 16, 'FontWeight','bold', ...
+        'FontColor','red', 'Position',[440 640 90 30], ...
+        'ButtonPushedFcn', @(btn, event) stopDrawing());
+    
     % KPI Panels
     panelWidth = 520; panelHeight = 250; panelBottom = 350; gap = 40;
-    kpi1 = uipanel(fig, 'Title','Primary User Mean Throughput', 'FontSize', 18,'Position',[gap*1.2 panelBottom panelWidth panelHeight]);
+    kpi1 = uipanel(fig, 'Title','GEO Users Mean Throughput', 'FontSize', 18,'Position',[gap*1.2 panelBottom panelWidth panelHeight]);
     kpi1ax = uiaxes(kpi1, 'Position', [5 1 510 225]);
-    setupKPIAxes(kpi1ax, [3 7], 'Throughput [Mbps]', 'Time [s]',[]);
+    setupKPIAxes(kpi1ax, [3 8], 'Throughput [bpHz]', 'Time [s]',[]);
 
-    kpi2 = uipanel(fig, 'Title','Secondary User Mean Throughput', 'FontSize', 18, 'Position',[gap*2.4 + panelWidth panelBottom panelWidth panelHeight]);
+    kpi2 = uipanel(fig, 'Title','LEO Users Mean Throughput', 'FontSize', 18, 'Position',[gap*2.4 + panelWidth panelBottom panelWidth panelHeight]);
     kpi2ax = uiaxes(kpi2, 'Position', [5 1 510 225]);
-    setupKPIAxes(kpi2ax, [0 2.5], 'Throughput [Mbps]','Time [s]',[]);
+    setupKPIAxes(kpi2ax, [0 2.5], 'Throughput [bpHz]','Time [s]',[]);
 
 
     % KPI Panels
@@ -79,7 +90,7 @@ function DeakinCogSatSimulatorV9
 
     kpi5 = uipanel(fig, 'Title','Mean SINR for LEO Users','FontSize', 18, 'Position',[gap*3.2 + panelWidth*2 panelBottom panelWidth panelHeight]);
     kpi5ax = uiaxes(kpi5, 'Position', [5 1 340 225]);
-    setupKPIAxes(kpi5ax, [-20 5], 'SINR [dB]','User index]',[]);
+    setupKPIAxes(kpi5ax, [-30 5], 'SINR [dB]','User index]',[]);
     % uiimage(kpi5, ...
     % 'ImageSource', 'Figure11.png', ...
     % 'Position', [10 10 panelWidth-20 panelHeight-20]);  % Adjust for padding
@@ -87,100 +98,124 @@ function DeakinCogSatSimulatorV9
 
     %% === Nested Functions ===
     co = colororder;
-    function toggleCogSat()
-        if toggleBtn.Value  % ON mode
-            toggleBtn.Text = 'On';
-            toggleBtn.FontColor = '#65aa3a';  % Green
-            cla(kpi1ax); cla(kpi2ax); cla(kpi3ax); cla(kpi4ax);cla(kpi5ax);
-
-            % Solid lines → CogSat ON
-            on_kpi1 = animatedline(kpi1ax, 'Color', co(1,:), 'LineWidth', 2);
-            on_kpi2 = animatedline(kpi2ax, 'Color', co(2,:), 'LineWidth', 2);
-            on_kpi3 = animatedline(kpi3ax, 'Color', co(3,:), 'LineWidth', 2);
-            on_kpi4 = animatedline(kpi4ax, 'Color', co(4,:), 'LineWidth', 2);
-            on_kpi5 = animatedline(kpi5ax, 'Color', co(5,:), 'LineWidth', 2);
-            % Dashed lines → Baseline OFF
-            off_kpi1 = animatedline(kpi1ax, 'Color', co(7,:), 'LineWidth', 2, 'LineStyle','--');
-            off_kpi2 = animatedline(kpi2ax, 'Color', co(6,:), 'LineWidth', 2, 'LineStyle','--');
-            off_kpi3 = animatedline(kpi3ax, 'Color', co(5,:), 'LineWidth', 2, 'LineStyle','--');
-            off_kpi4 = animatedline(kpi4ax, 'Color', co(3,:), 'LineWidth', 2, 'LineStyle','--');
-            off_kpi5 = animatedline(kpi5ax, 'Color', co(2,:), 'LineWidth', 2, 'LineStyle','--');
-
-            legend(kpi1ax, {'CogSat', 'Baseline'}, 'Location', 'northeast');
-            legend(kpi2ax, {'CogSat', 'Baseline'}, 'Location', 'northeast');
-            legend(kpi3ax, {'CogSat', 'Baseline'}, 'Location', 'northeast');
-            legend(kpi4ax, {'CogSat', 'Baseline'}, 'Location', 'northeast');
-            legend(kpi5ax, {'CogSat', 'Baseline'}, 'Location', 'northeast');
-
-            T = readtable('Data.xlsx');
-            for i = 1:height(T)
-                if ~toggleBtn.Value, break; end
-                t = T.Time(i);
-                % CogSat ON values (solid lines)
-                y1_on = str2double(T.GEOThroupRL10(i));
-                y2_on = str2double(T.LEOThroupRL10(i));
-                y3_on = str2double(T.SERL(i))*100;
-                y4_on = str2double(T.GEOSINRRL10(i));
-                y5_on = str2double(T.LEOSINRRL10(i));
-        
-                % Baseline OFF values (dashed lines)
-                y1_off = str2double(T.GEOThroupRA10(i));
-                y2_off = str2double(T.LEOThroupRA10(i));
-                y3_off = str2double(T.SERA(i))*100;
-                y4_off = str2double(T.GEOSINRRA10(i));
-                y5_off = str2double(T.LEOSINRRA10(i));
-        
-                % Add CogSat ON points
-                if ~isnan(y1_on), addpoints(on_kpi1, t, y1_on); end
-                if ~isnan(y2_on), addpoints(on_kpi2, t, y2_on); end
-                if ~isnan(y3_on), addpoints(on_kpi3, t, y3_on); end
-                if ~isnan(y4_on), addpoints(on_kpi4, t, y4_on); end
-                if ~isnan(y5_on), addpoints(on_kpi5, t, y5_on); end
-        
-                % Add Baseline OFF points
-                if ~isnan(y1_off), addpoints(off_kpi1, t, y1_off); end
-                if ~isnan(y2_off), addpoints(off_kpi2, t, y2_off); end
-                if ~isnan(y3_off), addpoints(off_kpi3, t, y3_off); end
-                if ~isnan(y4_off), addpoints(off_kpi4, t, y4_off); end
-                if ~isnan(y5_off), addpoints(off_kpi5, t, y5_off); end
-                drawnow limitrate; pause(0.2);
-            end
+    function runCogSat()
+        drawingActive = true;
+        cla(kpi1ax); cla(kpi2ax); cla(kpi3ax); cla(kpi4ax); cla(kpi5ax);
     
-        else  % OFF mode
-            toggleBtn.Text = 'Off';
-            toggleBtn.FontColor = 'red';
-            cla(kpi1ax); cla(kpi2ax); cla(kpi3ax); cla(kpi4ax);cla(kpi5ax);
+        on_kpi1 = animatedline(kpi1ax, 'Color', co(1,:), 'LineWidth', 2);
+        on_kpi2 = animatedline(kpi2ax, 'Color', co(2,:), 'LineWidth', 2);
+        on_kpi3 = animatedline(kpi3ax, 'Color', co(3,:), 'LineWidth', 2);
+        on_kpi4 = animatedline(kpi4ax, 'Color', co(4,:), 'LineWidth', 2);
+        on_kpi5 = animatedline(kpi5ax, 'Color', co(5,:), 'LineWidth', 2);
     
-            off_kpi1 = animatedline(kpi1ax, 'Color', co(1,:), 'LineWidth', 2, 'LineStyle','--');
-            off_kpi2 = animatedline(kpi2ax, 'Color', co(2,:), 'LineWidth', 2, 'LineStyle','--');
-            off_kpi3 = animatedline(kpi3ax, 'Color', co(3,:), 'LineWidth', 2, 'LineStyle','--');
-            off_kpi4 = animatedline(kpi4ax, 'Color', co(4,:), 'LineWidth', 2, 'LineStyle','--');
-            off_kpi5 = animatedline(kpi5ax, 'Color', co(5,:), 'LineWidth', 2, 'LineStyle','--');
-
-            legend(kpi1ax, {'Baseline'}, 'Location', 'northeast');
-            legend(kpi2ax, {'Baseline'}, 'Location', 'northeast');
-            legend(kpi3ax, {'Baseline'}, 'Location', 'northeast');
-            legend(kpi4ax, {'Baseline'}, 'Location', 'northeast');
-            legend(kpi5ax, {'Baseline'}, 'Location', 'northeast');
-
-  
-            T = readtable('Data.xlsx');
-            for i = 1:height(T)
-                if toggleBtn.Value, break; end
-                t = T.Time(i);
-                y1 = str2double(T.GEOThroupRA10(i));
-                y2 = str2double(T.LEOThroupRA10(i));
-                y3 = str2double(T.SERA(i))*100;
-                y4 = str2double(T.GEOSINRRA10(i));
-                y5 = str2double(T.LEOSINRRA10(i));
-                if ~isnan(y1), addpoints(off_kpi1, t, y1); end
-                if ~isnan(y2), addpoints(off_kpi2, t, y2); end
-                if ~isnan(y3), addpoints(off_kpi3, t, y3); end
-                if ~isnan(y4), addpoints(off_kpi4, t, y4); end
-                if ~isnan(y5), addpoints(off_kpi5, t, y5); end
-                drawnow limitrate; pause(0.2);
-            end
+        legend(kpi1ax, {'CogSat'}, 'Location', 'southeast');
+        legend(kpi2ax, {'CogSat'}, 'Location', 'northeast');
+        legend(kpi3ax, {'CogSat'}, 'Location', 'northeast');
+        legend(kpi4ax, {'CogSat'}, 'Location', 'southeast');
+        legend(kpi5ax, {'CogSat'}, 'Location', 'northeast');
+    
+        T = loadDataForChannels();
+        for i = 1:height(T)
+            if ~drawingActive, break; end
+            t = T.Time(i);
+            addpoints(on_kpi1, t, str2double(T.geo_thrpt_a2c(i)));
+            addpoints(on_kpi2, t, str2double(T.leo_thrpt_a2c(i)));
+            addpoints(on_kpi3, t, str2double(T.all_se_a2c(i))*100);
+            addpoints(on_kpi4, t, str2double(T.geo_sinr_a2c(i)));
+            addpoints(on_kpi5, t, str2double(T.leo_sinr_a2c(i)));
+            drawnow limitrate; pause(0.3);
         end
+    end
+    function runBaseline()
+        drawingActive = true;
+        cla(kpi1ax); cla(kpi2ax); cla(kpi3ax); cla(kpi4ax); cla(kpi5ax);
+    
+        off_kpi1 = animatedline(kpi1ax, 'Color', co(1,:), 'LineWidth', 2, 'LineStyle','--');
+        off_kpi2 = animatedline(kpi2ax, 'Color', co(2,:), 'LineWidth', 2, 'LineStyle','--');
+        off_kpi3 = animatedline(kpi3ax, 'Color', co(3,:), 'LineWidth', 2, 'LineStyle','--');
+        off_kpi4 = animatedline(kpi4ax, 'Color', co(4,:), 'LineWidth', 2, 'LineStyle','--');
+        off_kpi5 = animatedline(kpi5ax, 'Color', co(5,:), 'LineWidth', 2, 'LineStyle','--');
+    
+        legend(kpi1ax, {'Baseline'}, 'Location', 'southeast');
+        legend(kpi2ax, {'Baseline'}, 'Location', 'northeast');
+        legend(kpi3ax, {'Baseline'}, 'Location', 'northeast');
+        legend(kpi4ax, {'Baseline'}, 'Location', 'southeast');
+        legend(kpi5ax, {'Baseline'}, 'Location', 'northeast');
+    
+        T = loadDataForChannels();
+        for i = 1:height(T)
+            if ~drawingActive, break; end
+            t = T.Time(i);
+            addpoints(off_kpi1, t, str2double(T.geo_thrpt_baseline(i)));
+            addpoints(off_kpi2, t, str2double(T.leo_thrpt_baseline(i)));
+            addpoints(off_kpi3, t, str2double(T.all_se_baseline(i))*100);
+            addpoints(off_kpi4, t, str2double(T.geo_sinr_baseline(i)));
+            addpoints(off_kpi5, t, str2double(T.leo_sinr_baseline(i)));
+            drawnow limitrate; pause(0.3);
+        end
+    end
+    function runCombined()
+        drawingActive = true;
+        cla(kpi1ax); cla(kpi2ax); cla(kpi3ax); cla(kpi4ax); cla(kpi5ax);
+    
+        on_kpi1 = animatedline(kpi1ax, 'Color', co(1,:), 'LineWidth', 2);
+        on_kpi2 = animatedline(kpi2ax, 'Color', co(2,:), 'LineWidth', 2);
+        on_kpi3 = animatedline(kpi3ax, 'Color', co(3,:), 'LineWidth', 2);
+        on_kpi4 = animatedline(kpi4ax, 'Color', co(4,:), 'LineWidth', 2);
+        on_kpi5 = animatedline(kpi5ax, 'Color', co(5,:), 'LineWidth', 2);
+    
+        off_kpi1 = animatedline(kpi1ax, 'Color', co(7,:), 'LineWidth', 2, 'LineStyle','--');
+        off_kpi2 = animatedline(kpi2ax, 'Color', co(6,:), 'LineWidth', 2, 'LineStyle','--');
+        off_kpi3 = animatedline(kpi3ax, 'Color', co(5,:), 'LineWidth', 2, 'LineStyle','--');
+        off_kpi4 = animatedline(kpi4ax, 'Color', co(3,:), 'LineWidth', 2, 'LineStyle','--');
+        off_kpi5 = animatedline(kpi5ax, 'Color', co(2,:), 'LineWidth', 2, 'LineStyle','--');
+    
+        legend(kpi1ax, {'CogSat','Baseline'}, 'Location', 'southeast');
+        legend(kpi2ax, {'CogSat','Baseline'}, 'Location', 'northeast');
+        legend(kpi3ax, {'CogSat','Baseline'}, 'Location', 'northeast');
+        legend(kpi4ax, {'CogSat','Baseline'}, 'Location', 'southeast');
+        legend(kpi5ax, {'CogSat','Baseline'}, 'Location', 'northeast');
+    
+        T = loadDataForChannels();
+        for i = 1:height(T)
+            if ~drawingActive, break; end
+            t = T.Time(i);
+    
+            % CogSat
+            addpoints(on_kpi1, t, str2double(T.geo_thrpt_a2c(i)));
+            addpoints(on_kpi2, t, str2double(T.leo_thrpt_a2c(i)));
+            addpoints(on_kpi3, t, str2double(T.all_se_a2c(i))*100);
+            addpoints(on_kpi4, t, str2double(T.geo_sinr_a2c(i)));
+            addpoints(on_kpi5, t, str2double(T.leo_sinr_a2c(i)));
+    
+            % Baseline
+            addpoints(off_kpi1, t, str2double(T.geo_thrpt_baseline(i)));
+            addpoints(off_kpi2, t, str2double(T.leo_thrpt_baseline(i)));
+            addpoints(off_kpi3, t, str2double(T.all_se_baseline(i))*100);
+            addpoints(off_kpi4, t, str2double(T.geo_sinr_baseline(i)));
+            addpoints(off_kpi5, t, str2double(T.leo_sinr_baseline(i)));
+    
+            drawnow limitrate; pause(0.3);
+        end
+    end
+    
+    function T = loadDataForChannels()
+        selectedChannels = Channelnum.Value;
+        switch selectedChannels
+            case '10'
+                filename = 'Data10.xlsx';
+            case '15'
+                filename = 'Data15.xlsx';
+            case '20'
+                filename = 'Data20.xlsx';
+            case '25'
+                filename = 'Data25.xlsx';
+            case '30'
+                filename = 'Data30.xlsx';
+            otherwise
+                error('Unknown selection!');
+        end
+        T = readtable(filename);
     end
 
     function setupKPIAxes(ax, ylimValues, ylabelText, xlabelText, xlimValues)
@@ -207,9 +242,31 @@ function DeakinCogSatSimulatorV9
         try
             data = load('SatelliteScenario.mat');
             sc = data.sc;
+            satelliteScenarioViewer(sc);
+            viewer.Camera.Target = [134 -25 0];
             play(sc,PlaybackSpeedMultiplier=100);
+
         catch ME
             disp("Error loading Satellite Scenario: " + ME.message);
         end
     end
+    function updateFrame(~,~)
+        if isvalid(fig)
+            if hasFrame(v)
+                frame = readFrame(v);
+                imshow(frame, 'Parent', vidAx);
+            else
+                v.CurrentTime = 0;
+            end
+        else
+            stop(vidTimer);
+            delete(vidTimer);
+        end
+    end
+    function stopDrawing()
+        drawingActive = false;
+        disp('Drawing stopped by user.');
+    end
+
+
 end 
