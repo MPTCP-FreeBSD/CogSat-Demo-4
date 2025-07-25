@@ -30,7 +30,7 @@ function DeakinCogSatSimulatorV11
     uilabel(fig, 'Text','Number of channels:', 'FontSize', 18, 'Position', [300 810 180 25]);
     Channelnum=uidropdown(fig, 'Items', {'10','15','20','25','30'}, 'FontSize', 16,'Position', [470 810 100 25], 'Value', '15');
     uilabel(fig, 'Text','Gain pattern:', 'FontSize', 18, 'Position', [300 770 180 25]);
-    uidropdown(fig, 'Items', {'Fixed','1D','2D'},'FontSize', 16, 'Position', [470 770 100 25], 'Value', '2D');
+    uidropdown(fig, 'Items', {'Fixed','1D','2D'},'FontSize', 16, 'Position', [470 770 100 25], 'Value', '1D');
     uilabel(fig, 'Text','Antenna beamwidth:', 'FontSize', 18, 'Position', [300 730 180 25]);
     uidropdown(fig, 'Items', {'0°','2°','5°','8°','10°','15°'},'FontSize', 16, 'Position', [470 730 100 25], 'Value', '8°');
     uilabel(fig, 'Text','Fading:', 'FontSize', 18, 'Position', [300 690 180 25]);
@@ -71,11 +71,11 @@ function DeakinCogSatSimulatorV11
     panelWidth = 520; panelHeight = 250; panelBottom = 350; gap = 40;
     kpi1 = uipanel(fig, 'Title','GEO Users Mean Throughput', 'FontSize', 18,'Position',[gap*1.2 panelBottom panelWidth panelHeight]);
     kpi1ax = uiaxes(kpi1, 'Position', [5 1 510 225]);
-    setupKPIAxes(kpi1ax, [3 8], 'Throughput [bpHz]', 'Time [s]',[]);
+    setupKPIAxes(kpi1ax, [3 8], 'Throughput [bps/Hz]', 'Time [s]',[]);
 
     kpi2 = uipanel(fig, 'Title','LEO Users Mean Throughput', 'FontSize', 18, 'Position',[gap*2.4 + panelWidth panelBottom panelWidth panelHeight]);
     kpi2ax = uiaxes(kpi2, 'Position', [5 1 510 225]);
-    setupKPIAxes(kpi2ax, [0 2.5], 'Throughput [bpHz]','Time [s]',[]);
+    setupKPIAxes(kpi2ax, [0 6], 'Throughput [bps/Hz]','Time [s]',[]);
 
 
     % KPI Panels
@@ -90,7 +90,7 @@ function DeakinCogSatSimulatorV11
 
     kpi5 = uipanel(fig, 'Title','Mean SINR for LEO Users','FontSize', 18, 'Position',[gap*3.2 + panelWidth*2 panelBottom panelWidth panelHeight]);
     kpi5ax = uiaxes(kpi5, 'Position', [5 1 340 225]);
-    setupKPIAxes(kpi5ax, [-30 5], 'SINR [dB]','User index]',[]);
+    setupKPIAxes(kpi5ax, [-20 15], 'SINR [dB]','User index',[]);
     % uiimage(kpi5, ...
     % 'ImageSource', 'Figure11.png', ...
     % 'Position', [10 10 panelWidth-20 panelHeight-20]);  % Adjust for padding
